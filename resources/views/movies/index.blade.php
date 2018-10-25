@@ -25,7 +25,12 @@
     <tr>
         <td>{{$datum['id']}}</td>
         <td>{{$datum['title']}}</td>
-        <td><a href="{{route('movies.edit',['movie_id'=>$datum['id']])}}">Editar</a></td>
+        <td><a class="btn btn-success" href="{{route('movies.edit',['movie_id'=>$datum['id']])}}">Editar</a>
+            <form action="{{ route('movies.destroy', ['movie_id'=>$datum['id']]) }}" method="POST">
+                <input type="hidden" name="_method" value="DELETE">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <button class="btn btn-danger">Delete</button>
+            </form></td></td>
     </tr>
 
     @endforeach

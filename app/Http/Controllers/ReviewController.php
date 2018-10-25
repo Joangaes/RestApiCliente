@@ -109,6 +109,13 @@ class ReviewController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $this->client->delete('http://localhost:8080/reviews/'.$id,[
+            'headers' => [
+            'Accept'     => 'application/json',
+            'Content-Type'     => 'application/json',
+            ]
+        ]);
+
+        return redirect()->route('reviews.index');
     }
 }
