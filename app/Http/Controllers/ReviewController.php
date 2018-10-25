@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use App\Review;
+use Carbon\Carbon;
 class ReviewController extends Controller
 {
     private $client;
@@ -19,7 +21,7 @@ class ReviewController extends Controller
     {
         $res = $this->client->get('http://localhost:8080/reviews');
         $data = json_decode($res->getBody(),true);
-        dd($data);
+        return view('reviews.index')->with(['data'=>$data]);
     }
 
     /**
@@ -29,7 +31,7 @@ class ReviewController extends Controller
      */
     public function create()
     {
-        //
+        return view('reviews.create');
     }
 
     /**
@@ -40,7 +42,16 @@ class ReviewController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $review = new Review($request->all());
+        $this->client->post('http://localhost:8080/reviews',[
+            'body'=>json_encode($review->convertToTypes()),
+            'headers' => [
+            'Accept'     => 'application/json',
+            'Content-Type'     => 'application/json',
+            ]
+        ]);
+
+        return redirect()->route('reviews.index');
     }
 
     /**
@@ -62,7 +73,11 @@ class ReviewController extends Controller
      */
     public function edit($id)
     {
-        //
+        $res = $this->client->get('http://localhost:8080/reviews/'.$id);
+        $data = json_decode($res->getBody(),true);
+        $data['id']= $id;
+        $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');
+        return view('reviews.edit')->with($data);
     }
 
     /**
@@ -74,7 +89,16 @@ class ReviewController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $review = new Review($request->all());
+        $this->client->put('http://localhost:8080/reviews/'.$id,[
+            'body'=>json_encode($review->convertToTypes()),
+            'headers' => [
+            'Accept'     => 'application/json',
+            'Content-Type'     => 'application/json',
+            ]
+        ]);
+
+        return redirect()->route('reviews.index');
     }
 
     /**
