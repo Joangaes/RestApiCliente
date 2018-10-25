@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use App\Movie;
 
 class MovieController extends Controller
 {
@@ -15,7 +16,7 @@ class MovieController extends Controller
 
     private $client;
     public function __construct(){
-        $this->client = new Client();
+        $this->client = new Client(['headers' => ['Accept' => 'application/json']]);
     }
 
 
@@ -23,18 +24,10 @@ class MovieController extends Controller
     { 
         $res = $this->client->get('http://localhost:8080/movies');
         $data = json_decode($res->getBody(),true);
-        dd($data);
+        return view('movies.index')->with(['data'=>$data]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+    public function create(){return view('movies.create');}
 
     /**
      * Store a newly created resource in storage.
@@ -44,7 +37,18 @@ class MovieController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $movie = new Movie($request->all());
+        $json = json_encode($movie->convertToTypes());
+        //dd($json);
+        $obj = $this->client->post('http://localhost:8080/movies',[
+            'body'=>json_encode($movie->convertToTypes()),
+            'headers' => [
+            'Accept'     => 'application/json',
+            'Content-Type'     => 'application/json',
+            ]
+        ]);
+
+        return redirect()->route('movies.index');
     }
 
     /**
@@ -66,7 +70,10 @@ class MovieController extends Controller
      */
     public function edit($id)
     {
-        //
+        $res = $this->client->get('http://localhost:8080/movies/'.$id);
+        $data = json_decode($res->getBody(),true);
+        $data['id']= $id;
+        return view('movies.edit')->with($data);
     }
 
     /**
@@ -78,7 +85,18 @@ class MovieController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $movie = new Movie($request->all());
+        $json = json_encode($movie->convertToTypes());
+        //dd($json);
+        $obj = $this->client->put('http://localhost:8080/movies/'.$id,[
+            'body'=>json_encode($movie->convertToTypes()),
+            'headers' => [
+            'Accept'     => 'application/json',
+            'Content-Type'     => 'application/json',
+            ]
+        ]);
+
+        return redirect()->route('movies.index');
     }
 
     /**
