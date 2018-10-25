@@ -29,9 +29,23 @@ class MovieDetailController extends Controller
         return view('movieDetails.create');}
     public function store(Request $request)
     {
-        dd(1);
-        $movieDetails = new MovieDetails($request->all());
-        dd($movieDetails);
+        $input = $request->all();
+        $awards = new Awards($input);
+        $imdb = new Imdb($input);
+        $tomato = new Tomato($input);
+        $movieDetails = new MovieDetails($input);
+        $movieDetails['awards'] = $awards;
+        $movieDetails['imdb'] = $imdb;
+        $movieDetails['tomato'] = $tomato;
+        $this->client->post('http://localhost:8080/movieDetails',[
+            'body'=>json_encode($movieDetails->convertPossibleToIntegers()),
+            'headers' => [
+            'Accept'     => 'application/json',
+            'Content-Type'     => 'application/json',
+            ]
+        ]);
+
+        return redirect()->route('movieDetails.index');
     }
     public function show($id)
     {
@@ -49,7 +63,6 @@ class MovieDetailController extends Controller
     public function update(Request $request, $id)
     {
         $input = $request->all();
-        //dd($input);
         $awards = new Awards($input);
         $imdb = new Imdb($input);
         $tomato = new Tomato($input);
@@ -57,15 +70,25 @@ class MovieDetailController extends Controller
         $movieDetails['awards'] = $awards;
         $movieDetails['imdb'] = $imdb;
         $movieDetails['tomato'] = $tomato;
-        $json = $movieDetails->convertPossibleToIntegers()->toJson();
-        $response = $this->client->put('http://localhost:8080/movieDetails/'.$id,[
-            'body'=>$json,
+        $this->client->put('http://localhost:8080/movieDetails/'.$id,[
+            'body'=>json_encode($movieDetails->convertPossibleToIntegers()),
+            'headers' => [
+            'Accept'     => 'application/json',
+            'Content-Type'     => 'application/json',
+            ]
         ]);
 
-        dd($response);
+        return redirect()->route('movieDetails.index');
     }
     public function destroy($id)
     {
-        DD(1);
+        $this->client->delete('http://localhost:8080/movieDetails/'.$id,[
+            'headers' => [
+            'Accept'     => 'application/json',
+            'Content-Type'     => 'application/json',
+            ]
+        ]);
+
+        return redirect()->route('movieDetails.index');
     }
 }

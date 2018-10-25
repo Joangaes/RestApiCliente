@@ -7,6 +7,8 @@
             @for($i = 0; $i<$amount_of_actors; $i++)
             <input id="actores[]" name="actors[]" placeholder="" value="{{$actors[$i]}}" class="form-control input-md" ="" type="text">
             @endfor
+        @else
+        <input id="actores[]" name="actors[]" placeholder="" class="form-control input-md" ="" type="text">
         @endif
         
     </div>
@@ -19,7 +21,9 @@
             @for($i = 0; $i<count($countries); $i++)
             <input id="countries[]" name="countries[]" placeholder="" value="{{$countries[$i]}}" class="form-control input-md" ="" type="text">
             @endfor
-        @endif
+            @else
+            <input id="countries[]" name="countries[]" placeholder="" class="form-control input-md" ="" type="text">
+            @endif
         
     </div>
 </div>
@@ -31,7 +35,9 @@
             @for($i = 0; $i<count($genres); $i++)
             <input id="genres[]" name="genres[]" placeholder="" value="{{$genres[$i]}}" class="form-control input-md" ="" type="text">
             @endfor
-        @endif
+            @else
+            <input id="genres[]" name="genres[]" placeholder="" class="form-control input-md" ="" type="text">
+            @endif
     </div>
 </div>
 
