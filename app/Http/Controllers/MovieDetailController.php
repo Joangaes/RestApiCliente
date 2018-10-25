@@ -4,87 +4,68 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
+use App\movieDetails;
+use App\Imdb;
+use App\Awards;
+use App\Tomato;
+use Carbon\Carbon;
 class MovieDetailController extends Controller
 {
     private $client;
     public function __construct(){
-        $this->client = new Client();
+        $this->client = new Client(['headers' => [
+            'Accept'     => 'application/json',
+        ]]);
     }
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         $res = $this->client->get('http://localhost:8080/movieDetails');
         $data = json_decode($res->getBody(),true);
-        dd($data);
+        return view('movieDetails.index')->with(['data'=>$data]);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    public function create(){
+        return view('movieDetails.create');}
     public function store(Request $request)
     {
-        //
+        dd(1);
+        $movieDetails = new MovieDetails($request->all());
+        dd($movieDetails);
     }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
-        //
+        DD(3);
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
-        //
+        $res = $this->client->get('http://localhost:8080/movieDetails/'.$id);
+        $data = json_decode($res->getBody(),true);
+        $data['id']= $id;
+        $data['released'] = Carbon::parse($data['released'])->format('Y-m-d');
+        $data['amount_of_actors'] = count($data['actors']);
+        return view('movieDetails.edit')->with($data);
     }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        //
-    }
+        $input = $request->all();
+        //dd($input);
+        $awards = new Awards($input);
+        $imdb = new Imdb($input);
+        $tomato = new Tomato($input);
+        $movieDetails = new MovieDetails($input);
+        $movieDetails['awards'] = $awards;
+        $movieDetails['imdb'] = $imdb;
+        $movieDetails['tomato'] = $tomato;
+        $json = $movieDetails->convertPossibleToIntegers()->toJson();
+        $response = $this->client->put('http://localhost:8080/movieDetails/'.$id,[
+            'body'=>$json,
+        ]);
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+        dd($response);
+    }
     public function destroy($id)
     {
-        //
+        DD(1);
     }
 }
